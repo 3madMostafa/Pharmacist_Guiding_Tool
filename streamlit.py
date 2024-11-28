@@ -5,7 +5,7 @@ import pandas as pd
 @st.cache_data
 def load_data():
     # Replace this with the path to your Excel file
-    file_path = 'C:\\Users\\Administrator\\Downloads\\last_version.xlsx'
+    file_path = 'last_version.xlsx'
     return pd.read_excel(file_path, sheet_name='last_version')
 
 # Load the data
