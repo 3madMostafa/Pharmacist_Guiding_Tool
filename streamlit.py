@@ -14,15 +14,22 @@ df = load_data()
 # Title of the app
 st.title("Pharmacist Guiding Tool")
 
-# Input for drug name
-drug_name = st.text_input("Search for a Drug Name:").strip().upper()
+# Get unique drug names for suggestions
+drug_names = df['Cleaned Up Drug Name'].dropna().unique()
+
+# Search bar with suggestions
+drug_name_input = st.text_input("Search for a Drug Name:").strip().upper()
+
+# Suggestion logic: Display dropdown if input matches partial names
+suggested_drugs = [name for name in drug_names if drug_name_input in name.upper()]
+drug_name = st.selectbox("Matching Drug Names:", options=suggested_drugs) if suggested_drugs else None
 
 # Dropdown for insurance selection
 insurance_names = [col.split('_')[0] for col in df.columns if '_check' in col]
 insurance_names = list(set(insurance_names))
 selected_insurance = st.selectbox("Select an Insurance:", sorted(insurance_names))
 
-# Filter data based on drug name
+# Filter data based on selected drug name
 if drug_name:
     filtered_df = df[df['Cleaned Up Drug Name'].str.contains(drug_name, na=False, case=False)]
     if not filtered_df.empty:
@@ -49,4 +56,4 @@ if drug_name:
     else:
         st.warning(f"No results found for drug: {drug_name}")
 else:
-    st.info("Please enter a drug name to search.")
+    st.info("Start typing a drug name to see suggestions.")
