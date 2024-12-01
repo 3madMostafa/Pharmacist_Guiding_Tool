@@ -4,7 +4,6 @@ import pandas as pd
 # Load the dataset
 @st.cache_data
 def load_data():
-    # Replace this with the path to your Excel file
     file_path = 'last_version.xlsx'
     return pd.read_excel(file_path, sheet_name='last_version')
 
@@ -59,6 +58,12 @@ if selected_value:
                 st.markdown(f"- **Net**: {row.get(f'{selected_value}_net', 'Not Available')}")
                 st.markdown(f"- **Copay**: {row.get(f'{selected_value}_copay', 'Not Available')}")
                 st.markdown(f"- **Covered**: {row.get(f'{selected_value}_covered', 'Not Available')}")
+            else:
+                # Show all data related to the drug name
+                st.markdown(f"- **Quantity**: {row.get(f'{search_by}_quantity', 'Not Available')}")
+                st.markdown(f"- **Net**: {row.get(f'{search_by}_net', 'Not Available')}")
+                st.markdown(f"- **Copay**: {row.get(f'{search_by}_copay', 'Not Available')}")
+                st.markdown(f"- **Covered**: {row.get(f'{search_by}_covered', 'Not Available')}")
             st.markdown("---")
     else:
         st.warning(f"No results found for {selected_value}.")
