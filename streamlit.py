@@ -13,59 +13,45 @@ df = load_data()
 # Title of the app
 st.title("Pharmacist Guiding Tool 💊")
 
-# Flexible search options
-search_options = ["Drug Name", "Insurance"]
-search_by = st.radio("What do you want to search by?", search_options)
+# Search inputs
+drug_name_input = st.text_input("Search for a Drug Name:").strip().upper()
+insurance_input = st.text_input("Search for an Insurance:").strip().upper()
 
-# Flexible search input
-search_input = st.text_input(f"Search for a {search_by}:").strip().upper()
-
-# Handle search logic
-if search_by == "Drug Name":
-    unique_values = df['Cleaned Up Drug Name'].dropna().unique()
-elif search_by == "Insurance":
-    unique_values = [col.split('_')[0] for col in df.columns if '_check' in col]
-
-# Filter matching results
-if search_input:
-    matched_values = [value for value in unique_values if search_input in value.upper()]
-    selected_value = st.selectbox(f"Matching {search_by}s:", options=matched_values) if matched_values else None
-else:
-    selected_value = None
-
-# Display results based on selection
-if selected_value:
-    if search_by == "Drug Name":
-        filtered_df = df[df['Cleaned Up Drug Name'].str.contains(selected_value, na=False, case=False)]
-    elif search_by == "Insurance":
-        insurance_cols = [f"{selected_value}_check",
-                          f"{selected_value}_quantity",
-                          f"{selected_value}_net",
-                          f"{selected_value}_copay",
-                          f"{selected_value}_covered"]
-        filtered_df = df[['Cleaned Up Drug Name'] + insurance_cols] if all(col in df.columns for col in insurance_cols) else pd.DataFrame()
-
-    if not filtered_df.empty:
-        st.subheader(f"Results for **{selected_value}**:")
-
-        # Display data in a stylish format
+# Filter data based on both inputs
+if drug_name_input and insurance_input:
+    # Filter Drug Name
+    filtered_df = df[df['Cleaned Up Drug Name'].str.contains(drug_name_input, na=False, case=False)]
+    
+    # Filter Insurance Columns
+    insurance_cols = [f"{insurance_input}_check",
+                      f"{insurance_input}_quantity",
+                      f"{insurance_input}_net",
+                      f"{insurance_input}_copay",
+                      f"{insurance_input}_covered"]
+    
+    if not filtered_df.empty and all(col in df.columns for col in insurance_cols):
+        # Filter relevant columns for Insurance
+        filtered_df = filtered_df[['Cleaned Up Drug Name'] + insurance_cols]
+        filtered_df = filtered_df.rename(columns={
+            f"{insurance_input}_check": "Check",
+            f"{insurance_input}_quantity": "Quantity",
+            f"{insurance_input}_net": "Net",
+            f"{insurance_input}_copay": "Copay",
+            f"{insurance_input}_covered": "Covered"
+        }).fillna("Not Available")
+        
+        # Display Results
+        st.subheader(f"Results for **{drug_name_input}** with **{insurance_input}**:")
         for _, row in filtered_df.iterrows():
             st.markdown("---")
             st.markdown(f"### Drug Name: **{row['Cleaned Up Drug Name']}**")
-            if search_by == "Insurance":
-                st.markdown(f"- **Check**: {row.get(f'{selected_value}_check', 'Not Available')}")
-                st.markdown(f"- **Quantity**: {row.get(f'{selected_value}_quantity', 'Not Available')}")
-                st.markdown(f"- **Net**: {row.get(f'{selected_value}_net', 'Not Available')}")
-                st.markdown(f"- **Copay**: {row.get(f'{selected_value}_copay', 'Not Available')}")
-                st.markdown(f"- **Covered**: {row.get(f'{selected_value}_covered', 'Not Available')}")
-            else:
-                # Show all data related to the drug name
-                st.markdown(f"- **Quantity**: {row.get(f'{search_by}_quantity', 'Not Available')}")
-                st.markdown(f"- **Net**: {row.get(f'{search_by}_net', 'Not Available')}")
-                st.markdown(f"- **Copay**: {row.get(f'{search_by}_copay', 'Not Available')}")
-                st.markdown(f"- **Covered**: {row.get(f'{search_by}_covered', 'Not Available')}")
+            st.markdown(f"- **Check**: {row['Check']}")
+            st.markdown(f"- **Quantity**: {row['Quantity']}")
+            st.markdown(f"- **Net**: {row['Net']}")
+            st.markdown(f"- **Copay**: {row['Copay']}")
+            st.markdown(f"- **Covered**: {row['Covered']}")
             st.markdown("---")
     else:
-        st.warning(f"No results found for {selected_value}.")
+        st.warning(f"No results found for Drug: {drug_name_input} with Insurance: {insurance_input}.")
 else:
-    st.info(f"Start typing to search for a {search_by}.")
+    st.info("Please enter both Drug Name and Insurance to search.")
