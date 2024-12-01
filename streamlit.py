@@ -1,5 +1,7 @@
 import streamlit as st
 import pandas as pd
+from st_aggrid import AgGrid
+from st_aggrid.grid_options_builder import GridOptionsBuilder
 
 # Load the dataset
 @st.cache_data
@@ -46,14 +48,31 @@ if drug_name and selected_insurance:
 
         if all(col in df.columns for col in insurance_cols):
             filtered_df = filtered_df[['Cleaned Up Drug Name'] + insurance_cols]
-            styled_df = filtered_df.rename(columns={
+            filtered_df = filtered_df.rename(columns={
                 f"{selected_insurance}_check": "Check",
                 f"{selected_insurance}_quantity": "Quantity",
                 f"{selected_insurance}_net": "Net",
                 f"{selected_insurance}_copay": "Copay",
                 f"{selected_insurance}_covered": "Covered"
-            }).style.format(precision=2).background_gradient(cmap='coolwarm', subset=['Net', 'Copay'])
-            st.dataframe(styled_df)
+            })
+            
+            # إعداد خيارات عرض الجدول
+            gb = GridOptionsBuilder.from_dataframe(filtered_df)
+            gb.configure_pagination(paginationAutoPageSize=True)  # تفعيل التصفح الصفحات
+            gb.configure_default_column(editable=False, groupable=True)
+            gb.configure_columns(["Net", "Copay"], type=["numericColumn", "numberColumnFilter", "customNumericFormat"], precision=2)
+            gb.configure_selection('single')
+            grid_options = gb.build()
+
+            # عرض الجدول باستخدام AgGrid
+            AgGrid(
+                filtered_df,
+                gridOptions=grid_options,
+                enable_enterprise_modules=True,
+                theme="balham",  # يمكنك تجربة "streamlit", "material", "balham-dark"
+                fit_columns_on_grid_load=True,
+                height=400,
+            )
         else:
             st.warning(f"No data available for insurance: {selected_insurance}")
     else:
