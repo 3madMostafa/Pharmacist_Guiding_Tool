@@ -15,22 +15,19 @@ st.title("Pharmacist Guiding Tool 💊")
 
 # Search criteria
 st.markdown("### Search Options")
-search_option = st.radio("Choose search criteria:", ["Drug Name + Insurance", "Drug Name Only", "Insurance Only"], horizontal=True)
+search_option = st.radio("Choose search criteria:", ["Drug Name + Insurance", "Insurance Only"], horizontal=True)
 
 # Fetch unique drug names and insurance names
 drug_names = df['Cleaned Up Drug Name'].dropna().unique()
 insurance_names = list(set([col.split('_')[0] for col in df.columns if '_check' in col]))
 
 # Search fields with auto-complete
-if search_option in ["Drug Name + Insurance", "Drug Name Only"]:
+if search_option == "Drug Name + Insurance":
     drug_name_input = st.selectbox("Search for a Drug Name:", options=[""] + [name for name in drug_names], format_func=lambda x: x if x else "Type to search...")
-else:
-    drug_name_input = None
-
-if search_option in ["Drug Name + Insurance", "Insurance Only"]:
     insurance_input = st.selectbox("Search for an Insurance:", options=[""] + [name for name in insurance_names], format_func=lambda x: x if x else "Type to search...")
-else:
-    insurance_input = None
+elif search_option == "Insurance Only":
+    drug_name_input = None
+    insurance_input = st.selectbox("Search for an Insurance:", options=[""] + [name for name in insurance_names], format_func=lambda x: x if x else "Type to search...")
 
 # Filter data based on the selected criteria
 if search_option == "Drug Name + Insurance" and drug_name_input and insurance_input:
@@ -48,9 +45,6 @@ if search_option == "Drug Name + Insurance" and drug_name_input and insurance_in
         }).drop_duplicates().fillna("Not Available")
     else:
         filtered_df = pd.DataFrame()
-elif search_option == "Drug Name Only" and drug_name_input:
-    # Filter by Drug Name only
-    filtered_df = df[df['Cleaned Up Drug Name'].str.contains(drug_name_input, na=False, case=False)].drop_duplicates()
 elif search_option == "Insurance Only" and insurance_input:
     # Filter by Insurance only
     insurance_cols = [f"{insurance_input}_quantity",
@@ -81,8 +75,6 @@ if not filtered_df.empty:
 else:
     if search_option == "Drug Name + Insurance" and drug_name_input and insurance_input:
         st.warning(f"No results found for Drug: {drug_name_input} with Insurance: {insurance_input}.")
-    elif search_option == "Drug Name Only" and drug_name_input:
-        st.warning(f"No results found for Drug: {drug_name_input}.")
     elif search_option == "Insurance Only" and insurance_input:
         st.warning(f"No results found for Insurance: {insurance_input}.")
     else:
