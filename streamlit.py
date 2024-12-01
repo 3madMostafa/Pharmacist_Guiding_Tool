@@ -13,19 +13,22 @@ df = load_data()
 # Title of the app
 st.title("Pharmacist Guiding Tool 💊")
 
-# Search inputs
+# Search criteria
 st.markdown("### Search Options")
-
-# Search criteria selection
 search_option = st.radio("Choose search criteria:", ["Drug Name + Insurance", "Drug Name Only", "Insurance Only"], horizontal=True)
 
+# Fetch unique drug names and insurance names
+drug_names = df['Cleaned Up Drug Name'].dropna().unique()
+insurance_names = list(set([col.split('_')[0] for col in df.columns if '_check' in col]))
+
+# Search fields with auto-complete
 if search_option in ["Drug Name + Insurance", "Drug Name Only"]:
-    drug_name_input = st.text_input("Enter Drug Name:", placeholder="e.g., Paracetamol").strip().upper()
+    drug_name_input = st.selectbox("Search for a Drug Name:", options=[""] + [name for name in drug_names], format_func=lambda x: x if x else "Type to search...")
 else:
     drug_name_input = None
 
 if search_option in ["Drug Name + Insurance", "Insurance Only"]:
-    insurance_input = st.text_input("Enter Insurance Name:", placeholder="e.g., Medicare").strip().upper()
+    insurance_input = st.selectbox("Search for an Insurance:", options=[""] + [name for name in insurance_names], format_func=lambda x: x if x else "Type to search...")
 else:
     insurance_input = None
 
