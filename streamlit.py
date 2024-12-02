@@ -10,8 +10,15 @@ def load_data():
 # Load the data
 df = load_data()
 
-# Title of the app
-st.title("CDI Medication Guiding Tool 💊")
+# Display logo and title
+logo_path = "image.png"  # Path to the uploaded logo
+
+# Use columns for better alignment
+col1, col2 = st.columns([1, 4])  # Adjust column widths
+with col1:
+    st.image(logo_path, use_column_width=True)
+with col2:
+    st.title("CDI Medication Guiding Tool 💊")
 
 # Search criteria
 st.markdown("### Search Options")
