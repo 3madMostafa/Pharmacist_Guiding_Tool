@@ -76,22 +76,15 @@ if not filtered_df.empty:
 
     # Handle "NC" or NaN values for sorting
     alternatives['Net'] = pd.to_numeric(alternatives['Net'], errors='coerce').fillna(-1e9)
-    alternatives['Quantity'] = pd.to_numeric(alternatives['Quantity'], errors='coerce').fillna(-1e9)
     alternatives['Copay'] = pd.to_numeric(alternatives['Copay'], errors='coerce').fillna(1e9)
 
     # Filtering options
     st.markdown(f"**Found {len(alternatives)} alternatives in the same class and insurance.**")
-    filter_option = st.selectbox("Filter Alternatives By:", options=["None", "Highest Net", "Lowest Net", "Highest Quantity", "Lowest Quantity", "Lowest Copay"])
+    filter_option = st.selectbox("Filter Alternatives By:", options=["None", "Highest Net", "Lowest Copay"])
     
     # Apply filter
     if filter_option == "Highest Net":
         alternatives = alternatives.sort_values(by="Net", ascending=False)
-    elif filter_option == "Lowest Net":
-        alternatives = alternatives.sort_values(by="Net", ascending=True)
-    elif filter_option == "Highest Quantity":
-        alternatives = alternatives.sort_values(by="Quantity", ascending=False)
-    elif filter_option == "Lowest Quantity":
-        alternatives = alternatives.sort_values(by="Quantity", ascending=True)
     elif filter_option == "Lowest Copay":
         alternatives = alternatives.sort_values(by="Copay", ascending=True)
 
