@@ -11,7 +11,7 @@ def load_data():
 df = load_data()
 
 # Title of the app
-st.title("Pharmacist Guiding Tool 💊")
+st.title("CDI Medication Guiding Tool 💊")
 
 # Search criteria
 st.markdown("### Search Options")
