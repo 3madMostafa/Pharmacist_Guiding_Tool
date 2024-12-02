@@ -4,8 +4,8 @@ import pandas as pd
 # Load the dataset
 @st.cache_data
 def load_data():
-    file_path = 'last_version.xlsx'
-    return pd.read_excel(file_path, sheet_name='last_version').drop_duplicates()
+    file_path = 'Matched_Data_Final2.csv'  # Updated file name
+    return pd.read_csv(file_path).drop_duplicates()
 
 # Load the data
 df = load_data()
@@ -19,7 +19,7 @@ st.info("Search is only allowed using both Drug Name and Insurance.")
 
 # Fetch unique drug names and insurance names
 drug_names = df['Cleaned Up Drug Name'].dropna().unique()
-insurance_names = list(set([col.split('_')[0] for col in df.columns if '_check' in col]))
+insurance_names = df['Insurance'].dropna().unique()
 
 # Search fields with auto-complete
 drug_name_input = st.selectbox("Search for a Drug Name:", options=[""] + [name for name in drug_names], format_func=lambda x: x if x else "Type to search...")
@@ -28,17 +28,10 @@ insurance_input = st.selectbox("Search for an Insurance:", options=[""] + [name 
 # Filter data based on the selected criteria
 if drug_name_input and insurance_input:
     # Filter by both Drug Name and Insurance
-    filtered_df = df[df['Cleaned Up Drug Name'].str.contains(drug_name_input, na=False, case=False)]
-    insurance_cols = [f"{insurance_input}_quantity",
-                      f"{insurance_input}_net",
-                      f"{insurance_input}_copay"]
-    if not filtered_df.empty and all(col in df.columns for col in insurance_cols):
-        filtered_df = filtered_df[['Cleaned Up Drug Name'] + insurance_cols]
-        filtered_df = filtered_df.rename(columns={
-            f"{insurance_input}_quantity": "Quantity",
-            f"{insurance_input}_net": "Net",
-            f"{insurance_input}_copay": "Copay"
-        }).drop_duplicates().fillna("Not Available")
+    filtered_df = df[(df['Cleaned Up Drug Name'].str.contains(drug_name_input, na=False, case=False)) & 
+                     (df['Insurance'].str.contains(insurance_input, na=False, case=False))]
+    if not filtered_df.empty:
+        filtered_df = filtered_df[['Cleaned Up Drug Name', 'Quantity', 'Net', 'Copay']].drop_duplicates().fillna("Not Available")
     else:
         filtered_df = pd.DataFrame()
 else:
