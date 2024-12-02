@@ -11,7 +11,7 @@ def load_data():
 df = load_data()
 
 # Display the logo
-logo_path = "image.png"  # Path to the uploaded logo
+logo_path = "image (1).png"  # Path to the uploaded logo
 st.image(logo_path, width=200)  # Adjust width as needed
 
 # Title of the app
