@@ -74,6 +74,11 @@ if not filtered_df.empty:
     class_name = filtered_df.iloc[0]['ClassDb']  # Get the class of the first drug
     alternatives = df[(df['ClassDb'] == class_name) & (df['Insurance'] == insurance_input)][['Cleaned Up Drug Name', 'Quantity', 'Net', 'Copay', 'Covered']].drop_duplicates()
 
+    # Handle "NC" or NaN values for sorting
+    alternatives['Net'] = pd.to_numeric(alternatives['Net'], errors='coerce').fillna(-1e9)
+    alternatives['Quantity'] = pd.to_numeric(alternatives['Quantity'], errors='coerce').fillna(-1e9)
+    alternatives['Copay'] = pd.to_numeric(alternatives['Copay'], errors='coerce').fillna(1e9)
+
     # Filtering options
     st.markdown(f"**Found {len(alternatives)} alternatives in the same class and insurance.**")
     filter_option = st.selectbox("Filter Alternatives By:", options=["None", "Highest Net", "Lowest Net", "Highest Quantity", "Lowest Quantity", "Lowest Copay"])
